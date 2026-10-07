@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate"
+    />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Математика для 6 класса</title>
+    <link rel="stylesheet" href="style.css?v=1" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="modal-overlay hidden" id="welcome-modal">
+        <div class="modal-content welcome-modal">
+          <h2 id="welcome-title">👋 Добро пожаловать!</h2>
+          <p id="welcome-text">
+            Войдите в свой аккаунт или зарегистрируйтесь, чтобы сохранять
+            прогресс.
+          </p>
+          <div class="auth-buttons">
+            <button id="login-btn" class="start-button auth-choice">
+              Войти
+            </button>
+            <button id="register-btn" class="start-button auth-choice register">
+              Зарегистрироваться
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-overlay hidden" id="name-modal">
+        <div class="modal-content">
+          <h2 id="auth-title">📝 Введите ваши данные</h2>
+          <div id="auth-error" class="auth-error hidden"></div>
+          <input
+            type="text"
+            id="student-lastname"
+            placeholder="Фамилия"
+            class="name-input"
+            maxlength="30"
+          />
+          <input
+            type="text"
+            id="student-firstname"
+            placeholder="Имя"
+            class="name-input"
+            maxlength="30"
+          />
+          <button id="auth-action-btn" class="start-button" type="button">
+            Войти
+          </button>
+          <button id="auth-back-btn" class="secondary-button" type="button">
+            Вернуться назад
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-overlay hidden" id="leaderboard-modal">
+        <div class="modal-content leaderboard-modal">
+          <button class="close-btn" id="close-leaderboard">✕</button>
+          <h2>🏆 Таблица лидеров класса</h2>
+          <div class="leaderboard-table-container">
+            <table class="leaderboard-table" id="leaderboard-table">
+              <thead>
+                <tr>
+                  <th class="rank">#</th>
+                  <th class="name">Ученик</th>
+                  <th class="correct">✅ Правильно</th>
+                  <th class="wrong">❌ Неправильно</th>
+                  <th class="total">📊 Всего</th>
+                  <th class="percentage">% Успеха</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-overlay hidden" id="practice-modal">
+        <div class="modal-content practice-modal">
+          <button class="close-btn" id="close-practice">✕</button>
+          <div class="practice-modal-header">
+            <h2 id="practice-title">Тренировка</h2>
+            <p id="practice-subtitle">Решай примеры и проверяй себя.</p>
+          </div>
+          <div class="practice-question" id="practice-question"></div>
+          <div class="practice-hint" id="practice-hint"></div>
+
+          <div class="game-area">
+            <div class="example-card">
+              <div class="example-display" id="practice-example">
+                <span class="number" id="practice-num1"></span>
+                <span class="operator" id="practice-operator"></span>
+                <span class="number" id="practice-num2"></span>
+                <span class="equals"></span>
+              </div>
+              <div class="geometry-figure hidden" id="geometry-figure"></div>
+              <div class="geometry-options hidden" id="geometry-options"></div>
+
+              <div class="answer-section">
+                <div
+                  class="answer-input"
+                  id="practice-answer-input"
+                  tabindex="0"
+                >
+                  <span id="practice-answer-text"></span>
+                  <span class="cursor" id="practice-cursor"></span>
+                </div>
+              </div>
+
+              <div class="feedback" id="practice-feedback"></div>
+            </div>
+          </div>
+
+          <div class="keyboard-section">
+            <h3>Виртуальная клавиатура</h3>
+            <div class="virtual-keyboard" id="practice-virtual-keyboard">
+              <button class="key-button" data-value="1">1</button>
+              <button class="key-button" data-value="2">2</button>
+              <button class="key-button" data-value="3">3</button>
+              <button class="key-button" data-value="4">4</button>
+              <button class="key-button" data-value="5">5</button>
+              <button class="key-button" data-value="6">6</button>
+              <button class="key-button" data-value="7">7</button>
+              <button class="key-button" data-value="8">8</button>
+              <button class="key-button" data-value="9">9</button>
+              <button class="key-button" data-value="0">0</button>
+              <button class="key-button" data-value="/">/</button>
+              <button class="key-button minus-button" data-value="-">−</button>
+              <button class="key-button delete-button" id="practice-delete-btn">
+                ⌫ Удалить
+              </button>
+            </div>
+          </div>
+
+          <div class="button-section">
+            <button class="submit-button" id="practice-submit-btn">
+              ОТВЕТИТЬ
+            </button>
+            <button class="next-button" id="practice-next-btn">➜ Дальше</button>
+          </div>
+
+          <div class="info-section" id="practice-settings">
+            <p>🧠 Решай по шагам и проверяй ответ сразу после ввода.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-overlay hidden" id="mistakes-modal">
+        <div class="modal-content mistakes-modal">
+          <button class="close-btn" id="close-mistakes">✕</button>
+          <h2 id="mistakes-title">❌ Неправильные примеры</h2>
+          <div class="mistakes-container" id="mistakes-container"></div>
+        </div>
+      </div>
+
+      <div class="header">
+        <div class="header-top">
+          <div>
+            <p class="header-subtitle">Уроки, тренировки и практика</p>
+            <h1>🚀 Математический комплекс</h1>
+          </div>
+          <div class="header-actions">
+            <a href="profile.html" class="profile-circle" id="profile-link" title="Мой профиль">
+              <span id="current-student-name">Гость</span>
+            </a>
+            <button class="leaderboard-btn" id="leaderboard-btn">
+              🏆 Таблица лидеров
+            </button>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <button class="tab-button active" data-tab="home" id="tab-home">
+            🏠 Главная
+          </button>
+          <button class="tab-button" data-tab="lessons" id="tab-lessons">
+            🎬 Видео-уроки
+          </button>
+          <button class="tab-button" data-tab="integers" id="tab-normal">
+            🔢 Целые числа
+          </button>
+          <button class="tab-button" data-tab="fractions" id="tab-fractions">
+            🧩 Дроби
+          </button>
+          <button class="tab-button" data-tab="equations" id="tab-equations">
+            🧮 Уравнения
+          </button>
+          <button class="tab-button" data-tab="percents" id="tab-percents">
+            📊 Проценты
+          </button>
+          <button class="tab-button" data-tab="geometry" id="tab-geometry">
+            📐 Геометрия
+          </button>
+        </div>
+
+        <div class="stats">
+          <span>Правильно: <strong id="correct-count">0</strong></span>
+          <span>Неправильно: <strong id="wrong-count">0</strong></span>
+          <span>Примеров решено: <strong id="total-count">0</strong></span>
+          <span class="percentage"
+            >Успех: <strong id="percentage-count">0%</strong></span
+          >
+        </div>
+      </div>
+
+      <section class="panel" id="panel-home">
+        <div class="hero-card">
+          <h2>Привет, юный математик!</h2>
+          <p>
+            Этот сайт поможет тебе не просто решать задачи, а понимать
+            математику шаг за шагом. Здесь есть видеоуроки, тренировки по темам
+            и удобная практика для закрепления.
+          </p>
+          <div class="hero-tags">
+            <span>📚 Видео-уроки</span>
+            <span>🧠 Практика по темам</span>
+            <button class="hero-link-btn" id="hero-leaderboard-btn">
+              🏆 Лидерская таблица
+            </button>
+          </div>
+        </div>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h3>🎬 Видео-уроки</h3>
+            <p>
+              Смотри объяснения по темам от 6 до 9 класса и повторяй материал в
+              удобное время.
+            </p>
+          </div>
+          <div class="feature-card">
+            <h3>🔢 Целые числа</h3>
+            <p>
+              Тренируйся в сложении, вычитании, умножении и делении с мгновенной
+              проверкой ответов.
+            </p>
+          </div>
+          <div class="feature-card">
+            <h3>🧩 Тематические тренировки</h3>
+            <p>
+              Каждая тема имеет короткую практику и подсказку, какое видео стоит
+              посмотреть.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel hidden" id="panel-lessons">
+        <div class="section-heading">
+          <h2>🎬 Видео-уроки по математике</h2>
+          <p>Выбирай тему, смотрите объяснение и возвращайся к практике.</p>
+        </div>
+        <div class="lesson-grid" id="video-lessons-list"></div>
+      </section>
+
+      <section class="panel hidden" id="panel-integers">
+        <div class="section-heading">
+          <h2>🔢 Целые числа</h2>
+          <p>
+            Решай примеры, следи за прогрессом и сравнивай результат с другими
+            учениками.
+          </p>
+        </div>
+
+        <div class="inline-leaderboard-card">
+          <div class="inline-leaderboard-header">
+            <h3>🏆 Топ учеников</h3>
+            <button class="leaderboard-inline-btn" id="leaderboard-inline-btn">
+              Открыть полную таблицу
+            </button>
+          </div>
+          <div
+            class="inline-leaderboard-list"
+            id="inline-leaderboard-list"
+          ></div>
+        </div>
+
+        <div class="topic-intro-card">
+          <h3>🌟 Привет! Это тренировка по целым числам</h3>
+          <p>
+            Повтори правила сложения, вычитания, умножения и деления. После
+            теории можно сразу перейти к задачам.
+          </p>
+          <button class="topic-start-btn" data-topic="integers">
+            Приступить к тренировке
+          </button>
+        </div>
+
+        <div class="info-section">
+          <p>🧠 Теория: следи за знаком числа и выбирай правильное действие.</p>
+        </div>
+      </section>
+
+      <section class="panel hidden" id="panel-fractions">
+        <div class="section-heading">
+          <h2>🧩 Тренировка по дробям</h2>
+          <p>Повторяй дроби и проверяй себя на простых задачах.</p>
+        </div>
+        <div class="topic-intro-card">
+          <h3>🧩 Приготовься к дробям</h3>
+          <p>
+            Здесь ты будешь решать простые задачи на сложение, вычитание,
+            умножение и деление дробей. После короткой теории откроется
+            тренировка.
+          </p>
+          <button class="topic-start-btn" data-topic="fractions">
+            Приступить к задачам
+          </button>
+        </div>
+        <div class="info-section">
+          <p>📚 Теория: сначала проверь, как складывать и вычитать дроби.</p>
+        </div>
+      </section>
+
+      <section class="panel hidden" id="panel-equations">
+        <div class="section-heading">
+          <h2>🧮 Тренировка по уравнениям</h2>
+          <p>Учись находить неизвестное и быстро проверять ответ.</p>
+        </div>
+        <div class="topic-intro-card">
+          <h3>🧮 Разбираем уравнения</h3>
+          <p>
+            В этой теме ты будешь находить неизвестное число и учиться проверять
+            собственный ответ.
+          </p>
+          <button class="topic-start-btn" data-topic="equations">
+            Приступить к задачам
+          </button>
+        </div>
+        <div class="info-section">
+          <p>📝 Теория: сначала перенеси всё лишнее в другую сторону.</p>
+        </div>
+      </section>
+
+      <section class="panel hidden" id="panel-percents">
+        <div class="section-heading">
+          <h2>📊 Тренировка по процентам</h2>
+          <p>Разбирай проценты на простых примерах и закрепляй навык.</p>
+        </div>
+        <div class="topic-intro-card">
+          <h3>📊 Проценты в жизни</h3>
+          <p>
+            Здесь можно тренироваться на простых задачах про скидки, части и
+            доли от числа.
+          </p>
+          <button class="topic-start-btn" data-topic="percents">
+            Приступить к задачам
+          </button>
+        </div>
+        <div class="info-section">
+          <p>💡 Теория: процент — это часть от целого числа.</p>
+        </div>
+      </section>
+
+      <section class="panel hidden" id="panel-geometry">
+        <div class="section-heading">
+          <h2>📐 Тренировка по геометрии</h2>
+          <p>Повторяй площади, периметры и простые геометрические задачи.</p>
+        </div>
+        <div class="topic-intro-card">
+          <h3>📐 Геометрия без стресса</h3>
+          <p>
+            Решай задачи на площадь, периметр и простые фигуры. Это поможет
+            быстрее понимать задания в классе.
+          </p>
+          <button class="topic-start-btn" data-topic="geometry">
+            Приступить к задачам
+          </button>
+        </div>
+        <div class="info-section">
+          <p>
+            📏 Теория: площадь — это пространство внутри фигуры, а периметр —
+            сумма сторон.
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="script.js?v=12"></script>
+  </body>
+</html>

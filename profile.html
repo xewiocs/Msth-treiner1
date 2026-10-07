@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Профиль ученика</title>
+    <link rel="stylesheet" href="style.css?v=1" />
+  </head>
+  <body>
+    <div class="container profile-page">
+      <div class="profile-card">
+        <h1>👤 Профиль ученика</h1>
+        <p class="profile-description">
+          Здесь отображается твой прогресс и статистика по решённым примерам.
+        </p>
+        <div class="profile-stats">
+          <div class="profile-row">
+            <span>Ученик:</span>
+            <strong id="profile-student-name">Гость</strong>
+          </div>
+          <div class="profile-row">
+            <span>Правильно:</span>
+            <strong id="profile-correct">0</strong>
+          </div>
+          <div class="profile-row">
+            <span>Неправильно:</span>
+            <strong id="profile-wrong">0</strong>
+          </div>
+          <div class="profile-row">
+            <span>Всего примеров:</span>
+            <strong id="profile-total">0</strong>
+          </div>
+          <div class="profile-row">
+            <span>Успех:</span>
+            <strong id="profile-percentage">0%</strong>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <a href="index.html" class="start-button">Вернуться на сайт</a>
+          <button id="profile-change-account" class="change-account-btn">
+            🔄 Изменить аккаунт
+          </button>
+          <button id="profile-clear-progress" class="clear-progress-btn">
+            🗑 Очистить прогресс
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function getStoredResults() {
+        try {
+          const fromLocal = localStorage.getItem("mathResults");
+          if (fromLocal) {
+            return JSON.parse(fromLocal);
+          }
+          const fromSession = sessionStorage.getItem("mathResults");
+          if (fromSession) {
+            return JSON.parse(fromSession);
+          }
+          return {};
+        } catch (e) {
+          return {};
+        }
+      }
+
+      function getStudentName() {
+        const params = new URLSearchParams(window.location.search);
+        const fromUrl = params.get("student");
+        if (fromUrl) {
+          try {
+            localStorage.setItem("mathLastStudent", fromUrl);
+          } catch (e) {}
+          return fromUrl;
+        }
+
+        try {
+          const fromSession = sessionStorage.getItem("mathLastStudent");
+          if (fromSession) {
+            localStorage.setItem("mathLastStudent", fromSession);
+            return fromSession;
+          }
+        } catch (e) {}
+
+        return localStorage.getItem("mathLastStudent");
+      }
+
+      function loadProfile() {
+        const nameElement = document.getElementById("profile-student-name");
+        const correctElement = document.getElementById("profile-correct");
+        const wrongElement = document.getElementById("profile-wrong");
+        const totalElement = document.getElementById("profile-total");
+        const percentageElement = document.getElementById("profile-percentage");
+
+        const studentName = getStudentName();
+        if (!studentName) {
+          nameElement.textContent = "Гость";
+          correctElement.textContent = "0";
+          wrongElement.textContent = "0";
+          totalElement.textContent = "0";
+          percentageElement.textContent = "0%";
+          return;
+        }
+
+        const allResults = getStoredResults();
+        const stats = allResults[studentName] || {
+          correct: 0,
+          wrong: 0,
+          total: 0,
+        };
+
+        nameElement.textContent = studentName;
+        correctElement.textContent = stats.correct || 0;
+        wrongElement.textContent = stats.wrong || 0;
+        totalElement.textContent = stats.total || 0;
+        percentageElement.textContent =
+          stats.total > 0
+            ? Math.round(((stats.correct || 0) / stats.total) * 100) + "%"
+            : "0%";
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        loadProfile();
+
+        document
+          .getElementById("profile-change-account")
+          .addEventListener("click", () => {
+            window.location.href = "index.html?changeAccount=true";
+          });
+
+        document
+          .getElementById("profile-clear-progress")
+          .addEventListener("click", () => {
+            const studentName = getStudentName();
+            if (!studentName) {
+              alert("Сначала зайдите на сайт и введите имя.");
+              return;
+            }
+
+            const allResults = getStoredResults();
+            delete allResults[studentName];
+            localStorage.setItem("mathResults", JSON.stringify(allResults));
+            try {
+              sessionStorage.setItem(
+                "mathResults",
+                JSON.stringify(allResults),
+              );
+            } catch (e) {}
+            window.location.reload();
+          });
+      });
+    </script>
+  </body>
+</html>
