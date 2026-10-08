@@ -223,6 +223,111 @@
         color: #666;
       }
 
+      .clickable-row {
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+
+      .clickable-row:hover {
+        background: #f0f4ff !important;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .modal.show {
+        display: flex;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 600px;
+        width: 100%;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #e7f3ff;
+      }
+
+      .modal-header h2 {
+        color: #1e3c72;
+        font-size: 1.5em;
+        margin: 0;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 2em;
+        color: #999;
+        cursor: pointer;
+        padding: 0;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+      }
+
+      .close-btn:hover {
+        background: #f0f0f0;
+        color: #333;
+      }
+
+      .mistake-card {
+        background: #f8f9ff;
+        border-left: 4px solid #e74c3c;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+      }
+
+      .mistake-example {
+        font-size: 1.3em;
+        font-weight: 600;
+        color: #1e3c72;
+        margin-bottom: 10px;
+      }
+
+      .mistake-details {
+        font-size: 0.95em;
+        color: #666;
+      }
+
+      .mistake-details strong {
+        color: #333;
+      }
+
+      .no-mistakes {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+      }
+
       @media (max-width: 768px) {
         .container {
           padding: 20px;
@@ -298,6 +403,17 @@
       </div>
     </div>
 
+    <!-- Модальное окно для ошибок -->
+    <div id="mistakes-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="mistakes-title">❌ Неправильные примеры</h2>
+          <button class="close-btn" id="close-mistakes">&times;</button>
+        </div>
+        <div id="mistakes-container"></div>
+      </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script>
@@ -338,50 +454,11 @@
         }, 2000);
       });
 
-      // Загрузка данных учеников
-      function loadStudents() {
-        if (!db) {
-          document.getElementById('table-container').innerHTML = `
-            <div class="no-data">
-              <h3>❌ Ошибка подключения к базе данных</h3>
-              <p>Проверьте настройки Firebase</p>
-            </div>
-          `;
-          return;
-        }
-
-        db.collection('mathResults')
-          .get()
-          .then((snapshot) => {
-            const students = [];
-            snapshot.forEach((doc) => {
-              const data = doc.data();
-              students.push({
-                name: decodeURIComponent(doc.id),
-                correct: data.correct || 0,
-                wrong: data.wrong || 0,
-                total: data.total || 0,
-                date: data.date || 'Не указана',
-                percentage: data.total > 0 ? Math.round((data.correct / data.total) * 100) : 0
-              });
-            });
-
-            renderStudentsTable(students);
-            updateStats(students);
-          })
-          .catch((error) => {
-            console.error('Error loading students:', error);
-            document.getElementById('table-container').innerHTML = `
-              <div class="no-data">
-                <h3>❌ Ошибка загрузки данных</h3>
-                <p>${error.message}</p>
-              </div>
-            `;
-          });
-      }
-
       // Отрисовка таблицы учеников
+      let studentsData = [];
+
       function renderStudentsTable(students) {
+        studentsData = students;
         const container = document.getElementById('table-container');
 
         if (students.length === 0) {
@@ -420,9 +497,12 @@
         students.forEach((student, index) => {
           const statusClass = student.total > 0 ? 'status-active' : 'status-inactive';
           const statusText = student.total > 0 ? 'Активен' : 'Неактивен';
+          const hasErrors = student.wrong > 0;
+          const rowClass = hasErrors ? 'clickable-row' : '';
+          const clickHandler = hasErrors ? `onclick="showMistakes('${student.name.replace(/'/g, "\\'")}')"` : '';
 
           tableHTML += `
-            <tr>
+            <tr class="${rowClass}" ${clickHandler}>
               <td><strong>${index + 1}</strong></td>
               <td><strong>${student.name}</strong></td>
               <td style="color: #27ae60; font-weight: 600;">${student.correct}</td>
@@ -469,6 +549,93 @@
       document.getElementById('export-btn').addEventListener('click', () => {
         alert('Функция экспорта в Excel будет добавлена в следующей версии!');
       });
+
+      // Функция для показа ошибок ученика
+      function showMistakes(studentName) {
+        const student = studentsData.find(s => s.name === studentName);
+        if (!student) return;
+
+        const mistakes = student.mistakes || [];
+        const container = document.getElementById('mistakes-container');
+        const title = document.getElementById('mistakes-title');
+
+        title.textContent = `❌ Неправильные примеры (${studentName})`;
+
+        if (mistakes.length === 0) {
+          container.innerHTML = '<div class="no-mistakes">Нет ошибок</div>';
+        } else {
+          container.innerHTML = mistakes.map((mistake, index) => {
+            const num2Display = String(mistake.num2).startsWith('-') ? `(${mistake.num2})` : mistake.num2;
+            return `
+              <div class="mistake-card">
+                <div style="font-weight: 600; color: #999; margin-bottom: 8px;">#${index + 1}</div>
+                <div class="mistake-example">
+                  ${mistake.num1} ${mistake.operator} ${num2Display} = ?
+                </div>
+                <div class="mistake-details">
+                  <div>Правильный ответ: <strong>${mistake.correctAnswer}</strong></div>
+                  <div>Ответ ученика: <strong style="color: #e74c3c;">${mistake.userAnswer}</strong></div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        document.getElementById('mistakes-modal').classList.add('show');
+      }
+
+      document.getElementById('close-mistakes').addEventListener('click', () => {
+        document.getElementById('mistakes-modal').classList.remove('show');
+      });
+
+      document.getElementById('mistakes-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'mistakes-modal') {
+          document.getElementById('mistakes-modal').classList.remove('show');
+        }
+      });
+
+      // Обновляем функцию loadStudents для сохранения данных
+      function loadStudents() {
+        if (!db) {
+          document.getElementById('table-container').innerHTML = `
+            <div class="no-data">
+              <h3>❌ Ошибка подключения к базе данных</h3>
+              <p>Проверьте настройки Firebase</p>
+            </div>
+          `;
+          return;
+        }
+
+        db.collection('mathResults')
+          .get()
+          .then((snapshot) => {
+            studentsData = [];
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              studentsData.push({
+                name: decodeURIComponent(doc.id),
+                correct: data.correct || 0,
+                wrong: data.wrong || 0,
+                total: data.total || 0,
+                mistakes: data.mistakes || [],
+                date: data.date || 'Не указана',
+                percentage: data.total > 0 ? Math.round((data.correct / data.total) * 100) : 0
+              });
+            });
+
+            renderStudentsTable(studentsData);
+            updateStats(studentsData);
+          })
+          .catch((error) => {
+            console.error('Error loading students:', error);
+            document.getElementById('table-container').innerHTML = `
+              <div class="no-data">
+                <h3>❌ Ошибка загрузки данных</h3>
+                <p>${error.message}</p>
+              </div>
+            `;
+          });
+      }
 
       // Автообновление каждые 10 секунд
       setInterval(() => {

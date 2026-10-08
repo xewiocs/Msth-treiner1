@@ -2037,29 +2037,21 @@ function saveMistake(mistake) {
     try {
       const docId = encodeURIComponent(currentStudent.fullName);
       const docRef = db.collection("mathResults").doc(docId);
-      // Обновляем счётчики
+      const currentMistakes = allResults[currentStudent.fullName].mistakes || [];
+
+      // Обновляем счётчики и массив ошибок одновременно
       docRef
         .set(
           {
             correct: stats.correct,
             wrong: stats.wrong,
             total: stats.total,
+            mistakes: currentMistakes,
             date: getCurrentDate(),
           },
           { merge: true },
         )
-        .catch((e) => console.warn("Failed to update Firestore counts:", e));
-
-      // Добавляем ошибку в массив
-      if (firebase && firebase.firestore && firebase.firestore.FieldValue) {
-        docRef
-          .update({
-            mistakes: firebase.firestore.FieldValue.arrayUnion(mistake),
-          })
-          .catch((e) =>
-            console.warn("Failed to push mistake to Firestore:", e),
-          );
-      }
+        .catch((e) => console.warn("Failed to update Firestore:", e));
     } catch (e) {
       console.warn("Firestore mistake sync error:", e);
     }
