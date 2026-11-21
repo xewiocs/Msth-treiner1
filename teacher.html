@@ -396,6 +396,9 @@
         <button class="btn btn-secondary" id="export-btn">
           📊 Экспорт в Excel
         </button>
+        <button class="btn btn-secondary" id="clear-leaderboard-btn" style="background: #ffe7e7; color: #c41e3a;">
+          🗑️ Очистить таблицу
+        </button>
       </div>
 
       <div id="table-container">
@@ -548,6 +551,59 @@
 
       document.getElementById('export-btn').addEventListener('click', () => {
         alert('Функция экспорта в Excel будет добавлена в следующей версии!');
+      });
+
+      document.getElementById('clear-leaderboard-btn').addEventListener('click', () => {
+        if (!confirm('⚠️ Вы уверены? Это удалит ВСЕХ учеников из таблицы лидеров!')) {
+          return;
+        }
+        if (!confirm('Последнее подтверждение: удалить всех учеников?')) {
+          return;
+        }
+
+        const btn = document.getElementById('clear-leaderboard-btn');
+        btn.textContent = '⏳ Очистка...';
+        btn.disabled = true;
+
+        try {
+          localStorage.removeItem('mathResults');
+          sessionStorage.removeItem('mathResults');
+        } catch (e) {}
+
+        if (db) {
+          db.collection('mathResults')
+            .get()
+            .then((snapshot) => {
+              const promises = [];
+              snapshot.forEach((doc) => {
+                promises.push(db.collection('mathResults').doc(doc.id).delete());
+              });
+              return Promise.all(promises);
+            })
+            .then(() => {
+              alert('✅ Таблица лидеров очищена!');
+              document.getElementById('table-container').innerHTML = `
+                <div class="no-data">
+                  <h3>📚 Пока нет учеников</h3>
+                  <p>Отправьте ссылку ученикам, и их результаты появятся здесь</p>
+                </div>
+              `;
+              document.getElementById('total-students').textContent = '0';
+              document.getElementById('total-solved').textContent = '0';
+              document.getElementById('avg-percentage').textContent = '0%';
+              btn.textContent = '🗑️ Очистить таблицу';
+              btn.disabled = false;
+            })
+            .catch((error) => {
+              alert('❌ Ошибка: ' + error.message);
+              btn.textContent = '🗑️ Очистить таблицу';
+              btn.disabled = false;
+            });
+        } else {
+          alert('❌ Firebase не инициализирован');
+          btn.textContent = '🗑️ Очистить таблицу';
+          btn.disabled = false;
+        }
       });
 
       // Функция для показа ошибок ученика

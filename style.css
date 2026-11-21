@@ -497,7 +497,6 @@ html {
 
 .hero-card,
 .inline-leaderboard-card,
-.lesson-card,
 .topic-card-inner,
 .feature-card {
   background: white;
@@ -544,28 +543,24 @@ html {
   background: #1e3c72;
 }
 
-.feature-grid,
-.lesson-grid {
+.feature-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 18px;
 }
 
 .feature-card h3,
-.lesson-card h3,
 .topic-card-inner h3 {
   color: #1e3c72;
   margin-bottom: 10px;
 }
 
 .feature-card p,
-.lesson-card p,
 .topic-card-inner p {
   color: #445;
   line-height: 1.5;
 }
 
-.lesson-card a,
 .topic-card-inner a {
   display: inline-block;
   margin-top: 12px;

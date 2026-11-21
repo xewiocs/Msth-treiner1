@@ -129,19 +129,11 @@ const leaderboardBody = document.getElementById("leaderboard-body");
 const tabButtons = Array.from(document.querySelectorAll(".tab-button"));
 const panels = {
   home: document.getElementById("panel-home"),
-  lessons: document.getElementById("panel-lessons"),
   integers: document.getElementById("panel-integers"),
   fractions: document.getElementById("panel-fractions"),
   equations: document.getElementById("panel-equations"),
   percents: document.getElementById("panel-percents"),
   geometry: document.getElementById("panel-geometry"),
-};
-const lessonsList = document.getElementById("video-lessons-list");
-const topicContainers = {
-  fractions: document.getElementById("topic-fractions"),
-  equations: document.getElementById("topic-equations"),
-  percents: document.getElementById("topic-percents"),
-  geometry: document.getElementById("topic-geometry"),
 };
 const inlineLeaderboardList = document.getElementById(
   "inline-leaderboard-list",
@@ -217,8 +209,6 @@ const normalSettings = document.getElementById("normal-settings");
 // Инициализация
 document.addEventListener("DOMContentLoaded", () => {
   setupEventListeners();
-  renderLessons();
-  renderTopicCards();
   switchTab("home");
 
   // Проверяем, нужно ли показать окно смены аккаунта
@@ -888,121 +878,6 @@ function checkPracticeAnswer() {
   renderInlineLeaderboard();
   practiceSubmitBtn.style.display = "none";
   practiceNextBtn.classList.add("show");
-}
-
-function renderLessons() {
-  const lessons = [
-    {
-      title: "Сложение и вычитание целых чисел",
-      description:
-        "Повтори правила работы с положительными и отрицательными числами.",
-      videoUrl:
-        "https://www.youtube.com/results?search_query=%D0%BC%D0%B0%D1%82%D0%B5%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B0+6+%D0%BA%D0%BB%D0%B0%D1%81+%D1%81%D0%B5%D0%BB%D1%8B%D0%B5+%D1%87%D0%B8%D1%81%D0%BB%D0%B0",
-    },
-    {
-      title: "Умножение и деление целых чисел",
-      description:
-        "Разберись, как правильно работать со знаками при умножении и делении.",
-      videoUrl:
-        "https://www.youtube.com/results?search_query=%D0%BC%D0%B0%D1%82%D0%B5%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B0+6+%D0%BA%D0%BB%D0%B0%D1%81+%D1%83%D0%BC%D0%BD%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5+%D0%B8+%D0%B4%D0%B5%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5",
-    },
-    {
-      title: "Дроби и действия с ними",
-      description: "Понять дроби проще — значит быстрее решать сложные задачи.",
-      videoUrl:
-        "https://www.youtube.com/results?search_query=%D0%BC%D0%B0%D1%82%D0%B5%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B0+6+%D0%BA%D0%BB%D0%B0%D1%81+%D0%B4%D1%80%D0%BE%D0%B1%D0%B8",
-    },
-    {
-      title: "Уравнения и поиск неизвестного",
-      description: "Учимся разбирать уравнения шаг за шагом.",
-      videoUrl:
-        "https://www.youtube.com/results?search_query=%D0%BC%D0%B0%D1%82%D0%B5%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B0+6+%D0%BA%D0%BB%D0%B0%D1%81+%D1%83%D1%80%D0%B0%D0%B2%D0%BD%D0%B5%D0%BD%D0%B8%D1%8F",
-    },
-    {
-      title: "Проценты в жизни",
-      description:
-        "Отрабатывай проценты на реальных примерах из повседневности.",
-      videoUrl:
-        "https://www.youtube.com/results?search_query=%D0%BC%D0%B0%D1%82%D0%B5%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B0+6+%D0%BA%D0%BB%D0%B0%D1%81+%D0%BF%D1%80%D0%BE%D1%86%D0%B5%D0%BD%D1%82%D1%8B",
-    },
-    {
-      title: "Площади и периметры",
-      description: "Повтори, как быстро находить площадь и периметр фигур.",
-      videoUrl:
-        "https://www.youtube.com/results?search_query=%D0%BC%D0%B0%D1%82%D0%B5%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B0+6+%D0%BA%D0%BB%D0%B0%D1%81+%D0%BF%D0%BB%D0%BE%D1%89%D0%B0%D0%B4%D0%B8+%D0%B8+%D0%BF%D0%B5%D1%80%D0%B8%D0%BC%D0%B5%D1%82%D1%80",
-    },
-  ];
-
-  if (!lessonsList) return;
-
-  lessonsList.innerHTML = lessons
-    .map(
-      (lesson) => `
-        <article class="lesson-card">
-          <h3>${lesson.title}</h3>
-          <p>${lesson.description}</p>
-          <a href="${lesson.videoUrl}" target="_blank" rel="noreferrer">▶ Смотреть видео</a>
-        </article>
-      `,
-    )
-    .join("");
-}
-
-function renderTopicCards() {
-  const topics = [
-    {
-      key: "fractions",
-      title: "Дроби",
-      shortText: "Сложение, вычитание и сравнение дробей.",
-      hint: "Подсказка: открой видео про дроби и повтори правила.",
-      videoUrl:
-        "https://www.youtube.com/results?search_query=%D0%BC%D0%B0%D1%82%D0%B5%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B0+6+%D0%BA%D0%BB%D0%B0%D1%81+%D0%B4%D1%80%D0%BE%D0%B1%D0%B8",
-      practice: "Пример: 1/2 + 1/4 = ?",
-    },
-    {
-      key: "equations",
-      title: "Уравнения",
-      shortText: "Находи неизвестное, выполняя шаги по порядку.",
-      hint: "Подсказка: посмотри видео по решению уравнений.",
-      videoUrl:
-        "https://www.youtube.com/results?search_query=%D0%BC%D0%B0%D1%82%D0%B5%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B0+6+%D0%BA%D0%BB%D0%B0%D1%81+%D1%83%D1%80%D0%B0%D0%B2%D0%BD%D0%B5%D0%BD%D0%B8%D1%8F",
-      practice: "Пример: 4x + 8 = 24",
-    },
-    {
-      key: "percents",
-      title: "Проценты",
-      shortText: "Учись находить процент от числа и сравнивать части.",
-      hint: "Подсказка: повтори видео про проценты с простыми примерами.",
-      videoUrl:
-        "https://www.youtube.com/results?search_query=%D0%BC%D0%B0%D1%82%D0%B5%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B0+6+%D0%BA%D0%BB%D0%B0%D1%81+%D0%BF%D1%80%D0%BE%D1%86%D0%B5%D0%BD%D1%82%D1%8B",
-      practice: "Пример: 25% от 80",
-    },
-    {
-      key: "geometry",
-      title: "Геометрия",
-      shortText: "Повторяй периметр, площадь и свойства фигур.",
-      hint: "Подсказка: открой урок по площади и периметру.",
-      videoUrl:
-        "https://www.youtube.com/results?search_query=%D0%BC%D0%B0%D1%82%D0%B5%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B0+6+%D0%BA%D0%BB%D0%B0%D1%81+%D0%BF%D0%BB%D0%BE%D1%89%D0%B0%D0%B4%D0%B8+%D0%B8+%D0%BF%D0%B5%D1%80%D0%B8%D0%BC%D0%B5%D1%82%D1%80",
-      practice: "Пример: площадь прямоугольника 4 × 6",
-    },
-  ];
-
-  Object.entries(topicContainers).forEach(([key, container]) => {
-    if (!container) return;
-    const topic = topics.find((item) => item.key === key);
-    if (!topic) return;
-
-    container.innerHTML = `
-      <div class="topic-card-inner">
-        <h3>${topic.title}</h3>
-        <p>${topic.shortText}</p>
-        <div class="topic-practice">${topic.practice}</div>
-        <div class="topic-hint">${topic.hint}</div>
-        <a href="${topic.videoUrl}" target="_blank" rel="noreferrer">🎥 Открыть подсказку</a>
-      </div>
-    `;
-  });
 }
 
 function renderInlineLeaderboard() {
